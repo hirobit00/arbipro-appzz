@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArbiPro - Arbitrage Trading</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: #111827;
+        }
+        
+        .header {
+            background: #1f2937;
+            padding: 1rem;
+            border-bottom: 1px solid #374151;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .logo-text p {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .main-content {
+            padding: 1rem;
+            padding-bottom: 5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid #374151;
+        }
+        
+        .stat-card.balance {
+            background: linear-gradient(135deg, #1e40af, #3730a3);
+        }
+        
+        .stat-card.profit {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+        
+        .stat-card.gray {
+            background: #1f2937;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .refresh-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: #2563eb;
+        }
+        
+        .refresh-btn:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+        }
+        
+        .opportunity-card {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .opportunity-card:hover {
+            border-color: #3b82f6;
+        }
+        
+        .opportunity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .opportunity-pair {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .opportunity-exchanges {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background: #064e3b;
+            color: #10b981;
+        }
+        
+        .status-executing {
+            background: #451a03;
+            color: #f59e0b;
+        }
+        
+        .status-completed {
+            background: #1e3a8a;
+            color: #60a5fa;
+        }
+        
+        .prices-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .price-item {
+            text-align: center;
+        }
+        
+        .price-label {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 0.25rem;
+        }
+        
+        .price-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .profit-section {
+            background: #374151;
+            padding: 1rem;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .profit-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #10b981;
+        }
+        
+        .profit-percent {
+            font-size: 14px;
+            color: #10b981;
+        }
+        
+        .time-left {
+            text-align: right;
+        }
+        
+        .time-label {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        .time-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f59e0b;
+        }
+        
+        .execute-btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .execute-btn.active {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+        
+        .execute-btn.active:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .execute-btn.disabled {
+            background: #4b5563;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            background: #1f2937;
+            border-top: 1px solid #374151;
+            padding: 1rem;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .nav-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #9ca3af;
+        }
+        
+        .nav-tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .nav-tab:hover {
+            color: white;
+            background: #374151;
+        }
+        
+        .nav-tab.active:hover {
+            background: #3b82f6;
+        }
+        
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .nav-label {
+            font-size: 12px;
+        }
+        
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .analytics-card, .wallet-card, .settings-card {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #374151;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            color: #d1d5db;
+        }
+        
+        .metric-value {
+            font-weight: bold;
+        }
+        
+        .metric-value.success {
+            color: #10b981;
+        }
+        
+        .metric-value.primary {
+            color: #60a5fa;
+        }
+        
+        .wallet-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #374151;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .wallet-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .wallet-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .wallet-balance {
+            text-align: right;
+        }
+        
+        .balance-amount {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #4b5563;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background: #3b82f6;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(20px);
+        }
+        
+        .input-field {
+            background: #4b5563;
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 6px;
+            width: 80px;
+            text-align: right;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">📈</div>
+                    <div class="logo-text">
+                        <h1>ArbiPro</h1>
+                        <p>Arbitrage Trading</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="notification-icon">
+                        🔔
+                        <div class="notification-badge"></div>
+                    </div>
+                    <div class="user-avatar">👤</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home Section -->
+            <section id="home" class="section active">
+                <!-- Portfolio Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card balance">
+                        <div class="stat-label">💰 Total Balance</div>
+                        <div class="stat-value" id="totalBalance">$25,750</div>
+                    </div>
+                    <div class="stat-card profit">
+                        <div class="stat-label">📈 Today's Profit</div>
+                        <div class="stat-value" id="todayProfit">+$528</div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card gray">
+                        <div class="stat-label">Total Profit</div>
+                        <div class="stat-value">$4,840</div>
+                    </div>
+                    <div class="stat-card gray">
+                        <div class="stat-label">Active Positions</div>
+                        <div class="stat-value" id="activePositions">12</div>
+                    </div>
+                </div>
+
+                <!-- Opportunities Section -->
+                <div class="section-header">
+                    <h2 class="section-title">🔥 Live Opportunities</h2>
+                    <button class="refresh-btn" onclick="refreshData()" id="refreshBtn">
+                        <span id="refreshIcon">🔄</span> Refresh
+                    </button>
+                </div>
+
+                <div id="opportunitiesList">
+                    <!-- Opportunities will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="section">
+                <h2 class="section-title">📊 Analytics Dashboard</h2>
+                
+                <div class="analytics-card">
+                    <div class="card-title">📈 Performance Overview</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Win Rate</span>
+                        <span class="metric-value success">92.7%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Avg. Profit per Trade</span>
+                        <span class="metric-value">$186.42</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Total Trades</span>
+                        <span class="metric-value">347</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Best Exchange Pair</span>
+                        <span class="metric-value primary">Binance ↔ Coinbase</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Wallet Section -->
+            <section id="wallet" class="section">
+                <h2 class="section-title">💰 Wallet & Exchange</h2>
+                
+                <div class="wallet-card">
+                    <div class="card-title">💳 Exchange Balances</div>
+                    
+                    <div class="wallet-item">
+                        <div class="wallet-info">
+                            <div class="wallet-icon" style="background: #f59e0b;">B</div>
+                            <span>Binance</span>
+                        </div>
+                        <div class="wallet-balance">
+                            <div class="balance-amount">8,420.30 USDT</div>
+                        </div>
+                    </div>
+                    
+                    <div class="wallet-item">
+                        <div class="wallet-info">
+                            <div class="wallet-icon" style="background: #3b82f6;">C</div>
+                            <span>Coinbase</span>
+                        </div>
+                        <div class="wallet-balance">
+                            <div class="balance-amount">6,890.25 USD</div>
+                        </div>
+                    </div>
+                    
+                    <div class="wallet-item">
+                        <div class="wallet-info">
+                            <div class="wallet-icon" style="background: #8b5cf6;">K</div>
+                            <span>Kraken</span>
+                        </div>
+                        <div class="wallet-balance">
+                            <div class="balance-amount">4,150.80 EUR</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="section">
+                <h2 class="section-title">⚙️ Settings</h2>
+                
+                <div class="settings-card">
+                    <div class="card-title">🎯 Trading Preferences</div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Auto-execute trades</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Min profit threshold (%)</span>
+                        <input type="number" class="input-field" value="1.5" step="0.1">
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Max trade amount ($)</span>
+                        <input type="number" class="input-field" value="5000" step="100">
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="switchTab('home')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-tab" onclick="switchTab('analytics')">
+                    <div class="nav-icon">📊</div>
+                    <div class="nav-label">Analytics</div>
+                </div>
+                <div class="nav-tab" onclick="switchTab('wallet')">
+                    <div class="nav-icon">💰</div>
+                    <div class="nav-label">Wallet</div>
+                </div>
+                <div class="nav-tab" onclick="switchTab('settings')">
+                    <div class="nav-icon">⚙️</div>
+                    <div class="nav-label">Settings</div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // App data
+        let opportunities = [
+            {
+                id: 1,
+                pair: 'BTC/USDT',
+                buyExchange: 'Binance',
+                sellExchange: 'Coinbase',
+                buyPrice: 43250.50,
+                sellPrice: 43890.75,
+                profit: 640.25,
+                profitPercent: 1.48,
+                timeLeft: 180,
+                status: 'active'
+            },
+            {
+                id: 2,
+                pair: 'ETH/USDT',
+                buyExchange: 'Kraken',
+                sellExchange: 'Binance',
+                buyPrice: 2650.30,
+                sellPrice: 2695.80,
+                profit: 45.50,
+                profitPercent: 1.72,
+                timeLeft: 240,
+                status: 'active'
+            },
+            {
+                id: 3,
+                pair: 'ADA/USDT',
+                buyExchange: 'Coinbase',
+                sellExchange: 'KuCoin',
+                buyPrice: 0.4523,
+                sellPrice: 0.4601,
+                profit: 0.0078,
+                profitPercent: 1.72,
+                timeLeft: 420,
+                status: 'pending'
+            }
+        ];
+
+        let portfolio = {
+            totalBalance: 25750.82,
+            todayProfit: 528.45,
+            activePositions: 12
+        };
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(tabName).classList.add('active');
+            
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            event.target.closest('.nav-tab').classList.add('active');
+        }
+
+        // Format time
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Render opportunities
+        function renderOpportunities() {
+            const container = document.getElementById('opportunitiesList');
+            container.innerHTML = '';
+            
+            opportunities.forEach(opp => {
+                const card = document.createElement('div');
+                card.className = 'opportunity-card';
+                card.innerHTML = `
+                    <div class="opportunity-header">
+                        <div>
+                            <div class="opportunity-pair">${opp.pair}</div>
+                            <div class="opportunity-exchanges">${opp.buyExchange} → ${opp.sellExchange}</div>
+                        </div>
+                        <div class="status-badge status-${opp.status}">${opp.status}</div>
+                    </div>
+                    
+                    <div class="prices-grid">
+                        <div class="price-item">
+                            <div class="price-label">Buy Price</div>
+                            <div class="price-value">$${opp.buyPrice.toFixed(2)}</div>
+                        </div>
+                        <div class="price-item">
+                            <div class="price-label">Sell Price</div>
+                            <div class="price-value">$${opp.sellPrice.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profit-section">
+                        <div>
+                            <div class="profit-amount">+$${opp.profit.toFixed(2)}</div>
+                            <div class="profit-percent">+${opp.profitPercent.toFixed(2)}%</div>
+                        </div>
+                        <div class="time-left">
+                            <div class="time-label">Time Left</div>
+                            <div class="time-value">${formatTime(opp.timeLeft)}</div>
+                        </div>
+                    </div>
+                    
+                    <button class="execute-btn ${opp.status === 'active' ? 'active' : 'disabled'}" 
+                            onclick="executeTrade(${opp.id})" 
+                            ${opp.status !== 'active' ? 'disabled' : ''}>
+                        ${opp.status === 'active' ? '🚀 Execute Trade' :
+                          opp.status === 'executing' ? '⏳ Executing...' :
+                          opp.status === 'completed' ? '✅ Completed' : '⏸️ Pending'}
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Execute trade
+        function executeTrade(id) {
+            const opp = opportunities.find(o => o.id === id);
+            if (!opp || opp.status !== 'active') return;
+            
+            // Update status to executing
+            opp.status = 'executing';
+            renderOpportunities();
+            
+            // Simulate execution
+            setTimeout(() => {
+                opp.status = 'completed';
+                portfolio.totalBalance += opp.profit;
+                portfolio.todayProfit += opp.profit;
+                portfolio.activePositions++;
+                
+                updatePortfolioDisplay();
+                renderOpportunities();
+            }, 3000);
+        }
+
+        // Update portfolio display
+        function updatePortfolioDisplay() {
+            document.getElementById('totalBalance').textContent = `$${portfolio.totalBalance.toLocaleString()}`;
+            document.getElementById('todayProfit').textContent = `+$${portfolio.todayProfit.toFixed(0)}`;
+            document.getElementById('activePositions').textContent = portfolio.activePositions;
+        }
+
+        // Refresh data
+        function refreshData() {
+            const btn = document.getElementById('refreshBtn');
+            const icon = document.getElementById('refreshIcon');
+            
+            btn.disabled = true;
+            icon.classList.add('animate-spin');
+            
+            setTimeout(() => {
+                // Update prices randomly
+                opportunities.forEach(opp => {
+                    opp.buyPrice *= (0.99 + Math.random() * 0.02);
+                    opp.sellPrice *= (0.99 + Math.random() * 0.02);
+                    opp.profit = Math.abs(opp.sellPrice - opp.buyPrice);
+                    opp.profitPercent = ((opp.sellPrice - opp.buyPrice) / opp.buyPrice * 100);
+                    opp.timeLeft = Math.max(120, opp.timeLeft + Math.floor(Math.random() * 60));
+                });
+                
+                renderOpportunities();
+                btn.disabled = false;
+                icon.classList.remove('animate-spin');
+            }, 1500);
+        }
+
+        // Toggle switch
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+        }
+
+        // Timer update
+        setInterval(() => {
+            opportunities.forEach(opp => {
+                if (opp.timeLeft > 0) {
+                    opp.timeLeft--;
+                }
+            });
+            renderOpportunities();
+        }, 1000);
+
+        // Initialize app
+        renderOpportunities();
+        updatePortfolioDisplay();
+    </script>
+</body>
+</html>
